@@ -6,16 +6,21 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Optional;
+
 @RestController
 @RequestMapping("/cashcards")
 class CashCardController {
+    private final CashCardRepository _cashCardRepository;
+
+    private CashCardController(CashCardRepository repo) {
+        this._cashCardRepository = repo;
+    }
 
     @GetMapping("/{requestedId}")
     private ResponseEntity<CashCard> findById(@PathVariable Long requestedId) {
-        if (requestedId == 99) {
-            return ResponseEntity.ok(new CashCard(99L, 123.45));
-        } else {
-            return ResponseEntity.notFound().build();
-        }
+        Optional<CashCard> cashCard = _cashCardRepository.findById(requestedId);
+
+        return cashCard.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 }
